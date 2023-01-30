@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app
+  template:
+    metadata:
+      labels:
+        app: node-app
+    spec:
+      containers:
+      - name: node-app
+        image: rahali77/rocket-admin
+        ports:
+        - containerPort: 5000
+      # tolerations:
+      # - key: "dedicated"
+      #   operator: "Equal" 
+      #   value: "special-user"
+      #   effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app-svc
+spec:
+  selector:
+    app: node-app
+  ports:
+  - name: http
+    port: 5000
+    targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-db
+  template:
+    metadata:
+      labels:
+        app: mysql-db
+    spec:
+      containers:
+      - name: mysql-db
+        image: rahali77/rocketdb
+        ports:
+        - containerPort: 3306
+      # tolerations:
+      # - key: "dedicated"
+      #   operator: "Equal"
+      #   value: "special-user"
+      #   effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-db-svc
+spec:
+  selector:
+    app: mysql-db
+  ports:
+  - name: mysql
+    protocol: TCP
+    port: 3306
+    targetPort: 3306
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app-svc
+spec:
+  selector:
+    app: node-app
+  ports:
+  - name: node-app
+    protocol: TCP
+    port: 5000
+    targetPort: 5000
+  type: NodePort
+
